@@ -20,6 +20,8 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v3
+        with:
+          version: '3.15.4'
 
       - name: Read chart version
         id: chart-version
