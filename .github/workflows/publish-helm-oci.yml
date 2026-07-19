@@ -1,0 +1,75 @@
+name: Build and release Helm OCI chart
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Read chart version
+        id: chart-version
+        run: |
+          CHART_VERSION=$(grep '^version:' Chart.yaml | sed 's/^version:[[:space:]]*//')
+          echo "CHART_VERSION=$CHART_VERSION" >> "$GITHUB_ENV"
+          echo "CHART_PACKAGE=piwigo-$CHART_VERSION.tgz" >> "$GITHUB_ENV"
+          echo "CHART_REF=v$CHART_VERSION" >> "$GITHUB_ENV"
+
+      - name: Validate chart
+        run: helm lint .
+
+      - name: Package chart
+        run: |
+          mkdir -p chartpkg
+          helm package . --destination chartpkg
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Save chart to OCI registry
+        run: |
+          helm chart save . "oci://ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}"
+
+      - name: Push chart to OCI registry
+        run: |
+          helm chart push "oci://ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}"
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name || env.CHART_REF }}
+          release_name: "piwigo chart ${{ env.CHART_VERSION }}"
+          draft: false
+          prerelease: false
+          body: |
+            Release of the Piwigo Helm chart version ${{ env.CHART_VERSION }}.
+            
+            OCI chart image: ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}
+
+      - name: Upload chart package to GitHub release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: chartpkg/${{ env.CHART_PACKAGE }}
+          asset_name: ${{ env.CHART_PACKAGE }}
+          asset_content_type: application/gzip
