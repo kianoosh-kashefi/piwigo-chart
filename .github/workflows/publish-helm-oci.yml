@@ -43,7 +43,7 @@ jobs:
 
       - name: Push packaged chart to OCI registry
         run: |
-          helm push chartpkg/${{ env.CHART_PACKAGE }} "oci://ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}"
+          helm push chartpkg/${{ env.CHART_PACKAGE }} "oci://ghcr.io/${{ github.repository_owner }}/piwigo"
 
       - name: Create GitHub release
         id: create_release
