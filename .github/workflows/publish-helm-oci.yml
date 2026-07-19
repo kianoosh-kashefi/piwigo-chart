@@ -52,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name || env.CHART_REF }}
-          release_name: "piwigo chart ${{ env.CHART_VERSION }}"
+          release_name: "${{ env.CHART_VERSION }}"
           draft: false
           prerelease: false
           body: |
