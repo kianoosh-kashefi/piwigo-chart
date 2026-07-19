@@ -36,7 +36,7 @@ helm install my-piwigo piwigo/piwigo -f custom-values.yaml
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `piwigo.replicas` | `1` | Number of Piwigo deployment replicas |
-| `piwigo.image.repository` | `piwigo/piwigo` | Docker image repository |
+| `piwigo.image.repository` | `linuxserver/piwigo` | Docker image repository |
 | `piwigo.image.tag` | `latest` | Docker image tag |
 | `piwigo.image.pullPolicy` | `IfNotPresent` | Image pull policy |
 | `piwigo.service.type` | `ClusterIP` | Service type (ClusterIP, NodePort, LoadBalancer) |

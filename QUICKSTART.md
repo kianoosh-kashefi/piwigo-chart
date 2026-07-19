@@ -266,7 +266,7 @@ kubectl describe ingress -n piwigo piwigo
 ## What's New in This Chart
 
 ✨ **Key Improvements**:
-- Uses official `piwigo/piwigo` Docker image
+- Uses `linuxserver/piwigo` Docker image
 - Full persistence support with flexible storage options
 - **New**: `extraObjects` feature to create additional Kubernetes resources
 - Comprehensive health checks (liveness & readiness probes)
