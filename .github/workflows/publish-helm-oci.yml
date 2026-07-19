@@ -19,13 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Helm
-        run: |
-          HELM_VERSION=v3.15.4
-          curl -L "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" -o helm.tar.gz
-          tar -zxvf helm.tar.gz
-          sudo mv linux-amd64/helm /usr/local/bin/helm
-          sudo chmod +x /usr/local/bin/helm
-          helm version --short
+        uses: azure/setup-helm@v3
 
       - name: Read chart version
         id: chart-version
@@ -47,13 +41,9 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Save chart to OCI registry
+      - name: Push packaged chart to OCI registry
         run: |
-          helm chart save . "oci://ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}"
-
-      - name: Push chart to OCI registry
-        run: |
-          helm chart push "oci://ghcr.io/${{ github.repository_owner }}/piwigo:${{ env.CHART_VERSION }}"
+          helm push chartpkg/${{ env.CHART_PACKAGE }} "oci://ghcr.io/${{ github.repository_owner }}/piwigo" --version "${{ env.CHART_VERSION }}"
 
       - name: Create GitHub release
         id: create_release
