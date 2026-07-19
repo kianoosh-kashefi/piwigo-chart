@@ -9,7 +9,7 @@ This file contains practical examples of how to use the Piwigo Helm chart with v
 piwigo:
   replicas: 1
   image:
-    repository: piwigo/piwigo
+    repository: linuxserver/piwigo
     tag: "latest"
 
 ingress:

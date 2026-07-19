@@ -6,9 +6,9 @@ piwigo:
   
   # Image configuration - using official Piwigo Docker image
   image:
-    repository: piwigo/piwigo
+    repository: linuxserver/piwigo
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   
   # Container port
   ports:

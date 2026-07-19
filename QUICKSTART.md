@@ -3,7 +3,7 @@
 ## Overview
 
 This Helm chart deploys Piwigo, a free and open source photo gallery/management application, on Kubernetes with:
-- ✅ Official Piwigo Docker image
+- ✅ Piwigo Docker image
 - ✅ Persistent storage for configuration and gallery data
 - ✅ Configurable ingress with TLS support
 - ✅ Health checks and resource management

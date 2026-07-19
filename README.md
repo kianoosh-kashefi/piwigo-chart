@@ -4,7 +4,7 @@ A comprehensive third-party Helm chart for deploying Piwigo photo gallery applic
 
 ## Features
 
-- **Official Piwigo Docker Image**: Uses the official `piwigo/piwigo` Docker image
+- **Piwigo Docker Image**: Uses `linuxserver/piwigo` Docker image
 - **Persistent Storage**: Separate persistent volumes for configuration and gallery data
 - **Flexible Ingress**: Configurable ingress with TLS/cert-manager support
 - **Health Checks**: Liveness and readiness probes for robust operations
