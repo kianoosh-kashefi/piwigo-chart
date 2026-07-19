@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "piwigo.fullname" . }}
+  labels:
+    {{- include "piwigo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.piwigo.replicas }}
+  strategy:
+    type: {{ .Values.piwigo.strategy.type | quote }}
+  selector:
+    matchLabels:
+      {{- include "piwigo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "piwigo.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "piwigo.serviceAccountName" . }}
+      containers:
+      - name: piwigo
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        image: "{{ .Values.piwigo.image.repository }}:{{ .Values.piwigo.image.tag }}"
+        imagePullPolicy: {{ .Values.piwigo.image.pullPolicy }}
+        ports:
+        {{- range .Values.piwigo.ports }}
+        - name: {{ .name | default "http" }}
+          containerPort: {{ .targetPort }}
+          protocol: {{ .protocol | default "TCP" }}
+        {{- end }}
+        {{- with .Values.piwigo.env }}
+        env:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.piwigo.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.piwigo.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.piwigo.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+        {{- if .Values.persistence.config.enabled }}
+        - name: piwigo-config
+          mountPath: {{ .Values.persistence.config.mountPath }}
+        {{- end }}
+        {{- if .Values.persistence.gallery.enabled }}
+        - name: piwigo-gallery
+          mountPath: {{ .Values.persistence.gallery.mountPath }}
+        {{- end }}
+      volumes:
+      {{- if .Values.persistence.config.enabled }}
+      - name: piwigo-config
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config" (include "piwigo.fullname" .)) }}
+      {{- end }}
+      {{- if .Values.persistence.gallery.enabled }}
+      - name: piwigo-gallery
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.gallery.existingClaim | default (printf "%s-gallery" (include "piwigo.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.piwigo.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.piwigo.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.piwigo.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.piwigo.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

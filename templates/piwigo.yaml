@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "piwigo.fullname" . }}
+  labels:
+    {{- include "piwigo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.piwigo.service.type }}
+  ports:
+  - port: {{ .Values.piwigo.service.port }}
+    targetPort: {{ .Values.piwigo.service.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "piwigo.selectorLabels" . | nindent 4 }}

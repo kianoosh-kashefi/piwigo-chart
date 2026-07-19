@@ -1,0 +1,16 @@
+apiVersion: v2
+name: piwigo
+description: Helm chart for Piwigo photo gallery application with persistence and extensibility
+type: application
+version: 1.0.0
+appVersion: "latest"
+maintainers:
+  - name: Admin
+    email: admin@example.com
+keywords:
+  - piwigo
+  - photo
+  - gallery
+home: https://piwigo.org
+sources:
+  - https://github.com/Piwigo/Piwigo

@@ -1,0 +1,25 @@
+{{- if and .Values.persistence.enabled .Values.persistence.gallery.enabled }}
+{{- if not .Values.persistence.gallery.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "piwigo.fullname" . }}-gallery
+  labels:
+    {{- include "piwigo.labels" . | nindent 4 }}
+  {{- with .Values.persistence.gallery.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .Values.persistence.gallery.accessModes }}
+  - {{ . }}
+  {{- end }}
+  {{- if .Values.persistence.gallery.storageClass }}
+  storageClassName: {{ .Values.persistence.gallery.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.gallery.size | quote }}
+{{- end }}
+{{- end }}

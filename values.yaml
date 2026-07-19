@@ -1,0 +1,170 @@
+kubernetesClusterDomain: cluster.local
+
+# Piwigo main configuration
+piwigo:
+  replicas: 1
+  
+  # Image configuration - using official Piwigo Docker image
+  image:
+    repository: piwigo/piwigo
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  # Container port
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  
+  # Deployment strategy
+  strategy:
+    type: Recreate
+  
+  # Resource limits and requests
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  
+  # Environment variables
+  env:
+    - name: TZ
+      value: "UTC"
+    # Add more environment variables as needed
+  
+  # Liveness and readiness probes
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  # Node affinity and tolerations
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: []
+
+# Persistence configuration
+persistence:
+  enabled: true
+  
+  # Config volume (for Piwigo configuration, plugins, etc.)
+  config:
+    enabled: true
+    size: 500Mi
+    # Set to existing PVC name to use existing claim
+    existingClaim: ""
+    # Storage class
+    storageClass: ""
+    accessModes:
+      - ReadWriteMany
+    annotations: {}
+    labels: {}
+    # Path where config is mounted in container
+    mountPath: /var/www/html
+  
+  # Gallery volume (for photos and media)
+  gallery:
+    enabled: true
+    size: 5Gi
+    # Set to existing PVC name to use existing claim
+    existingClaim: ""
+    # Storage class
+    storageClass: ""
+    accessModes:
+      - ReadWriteMany
+    annotations: {}
+    labels: {}
+    # Path where gallery is mounted in container
+    mountPath: /var/www/html/galleries
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  host: "piwigo.example.com"
+  tls:
+    enabled: true
+    secretName: "piwigo-tls"
+
+# Service account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod security context
+podSecurityContext: {}
+
+# Container security context
+securityContext: {}
+
+# Extra Kubernetes objects that can be created
+# This allows you to define any additional Kubernetes resources
+# Examples: ConfigMap, Secret, NetworkPolicy, PodDisruptionBudget, etc.
+extraObjects: []
+  # - apiVersion: v1
+  #   kind: ConfigMap
+  #   metadata:
+  #     name: piwigo-custom-config
+  #   data:
+  #     custom-setting: "value"
+  # 
+  # - apiVersion: v1
+  #   kind: Secret
+  #   metadata:
+  #     name: piwigo-db-secret
+  #   type: Opaque
+  #   data:
+  #     username: dXNlcm5hbWU=  # base64 encoded
+  #     password: cGFzc3dvcmQ=  # base64 encoded
+  #
+  # - apiVersion: policy/v1
+  #   kind: PodDisruptionBudget
+  #   metadata:
+  #     name: piwigo-pdb
+  #   spec:
+  #     maxUnavailable: 1
+  #     selector:
+  #       matchLabels:
+  #         app: piwigo
+  #
+  # - apiVersion: networking.k8s.io/v1
+  #   kind: NetworkPolicy
+  #   metadata:
+  #     name: piwigo-network-policy
+  #   spec:
+  #     podSelector:
+  #       matchLabels:
+  #         app: piwigo
+  #     policyTypes:
+  #       - Ingress
+  #     ingress:
+  #       - from:
+  #           - podSelector:
+  #               matchLabels:
+  #                 role: frontend
