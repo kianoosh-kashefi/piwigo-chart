@@ -80,7 +80,7 @@ persistence:
     annotations: {}
     labels: {}
     # Path where config is mounted in container
-    mountPath: /var/www/html
+    mountPath: /config
   
   # Gallery volume (for photos and media)
   gallery:
@@ -95,7 +95,7 @@ persistence:
     annotations: {}
     labels: {}
     # Path where gallery is mounted in container
-    mountPath: /var/www/html/galleries
+    mountPath: /gallery
 
 # Ingress configuration
 ingress:
